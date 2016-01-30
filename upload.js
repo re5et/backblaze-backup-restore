@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
@@ -15,6 +14,7 @@ const getBucketId = require('./getBucketId');
 const encryptDecrypt = require('./encryptDecrypt');
 const fileShaSum = require('./fileShaSum');
 const seriesRunner = require('./seriesRunner');
+const progressBar = require('./progressBar');
 
 const files = [];
 
@@ -22,11 +22,21 @@ function storageKey(file){
   return encryptDecrypt.encrypt(file);
 }
 
+function exclude(file){
+  if(file == 'lost+found'){
+    return true;
+  }
+  return false;
+}
+
 function getFilesToBackup(){
   const files = [];
   const backupPaths = process.env['BACKUP_RESTORE_PATHS_TO_BACKUP'].split(' ');
   backupPaths.forEach(function(backupPath){
     fs.readdirSync(backupPath).forEach(function(file){
+      if(exclude(file)){
+        return;
+      }
       files.push(path.join(backupPath, file));
     });
   });
@@ -35,11 +45,11 @@ function getFilesToBackup(){
 
 function uploadFile(options, file){
   return function(callback){
-    logger.info('****************************************************************');
+    logger.info('***** beginning work on: ', file);
     fileShaSum(file, function(err, originalSha256){
       logger.info('generating encrypted name for: ', file);
       const originalPathEncrypted = encryptDecrypt.encrypt(file);
-      logger.info('encrypted name: ', originalPathEncrypted);
+      logger.info('encrypted name for file: ', file, originalPathEncrypted);
       const workingFile = '/tmp/'+originalPathEncrypted;
 
       const reader = fs.createReadStream(file);
@@ -47,8 +57,8 @@ function uploadFile(options, file){
       const writer = fs.createWriteStream(workingFile);
       logger.info('reading, zipping, encrypting and writing working file: ', file, workingFile);
 
-      reader.pipe(zip).pipe(encryptDecrypt.encryptFile).pipe(writer);
-      writer.on('finish', function(){
+      reader.pipe(zip).pipe(encryptDecrypt.encryptFile()).pipe(writer).on('finish', function(){
+        zip.end();
         writer.end();
         logger.info('zipped and encrypted file written: ', workingFile);
         const body = fs.readFileSync(workingFile);
@@ -59,7 +69,7 @@ function uploadFile(options, file){
         logger.info('content length for : ', workingFile, contentLength);
         const url = options.apiUrl + '/b2api/v1/b2_get_upload_url';
         logger.info('getting upload authorization for: ', file);
-        var bytesUploaded = 0;
+        const bar = progressBar('uploading', contentLength);
         getBucketId(options, function(err, options){
           request({
             json: true,
@@ -71,15 +81,15 @@ function uploadFile(options, file){
               bucketId: options.bucketId
             }
           }, function(err, response, data){
-            const uploadTimer = setInterval(function(){
-              process.stdout.write('.');
-            }, 3000);
             if(err){ throw new Error(err) }
             logger.info('received upload authorization for: ', file);
             const uploadToken = data.authorizationToken;
             const uploadUrl = data.uploadUrl;
             logger.info('uploading file: ', file);
-            request.post(uploadUrl, {
+            const w = fs.createReadStream(workingFile)
+            w.on('data', function(chunk){
+              bar.tick(chunk.length);
+            }).pipe(request.post(uploadUrl, {
               headers: {
                 'Authorization': uploadToken,
                 'X-Bz-File-Name': storageKey(file),
@@ -87,19 +97,17 @@ function uploadFile(options, file){
                 'Content-Length': contentLength,
                 'Content-Type': 'application/octet-stream',
                 'X-Bz-Info-Original-Sha256': originalSha256
-              },
-              body: body
+              }
             }).on('error', function(err){
+              fs.unlinkSync(workingFile);
+              logger.error('error uploading file: ', file);
               callback(err);
-            }).on('data', function(){
-              console.log('.');
             }).on('end', function(){
-              clearInterval(uploadTimer);
               logger.info('removing working file: ', workingFile);
               fs.unlinkSync(workingFile);
               logger.info('upload complete: ', file);
               callback();
-            });
+            }));
           });
         });
       })
