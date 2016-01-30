@@ -15,11 +15,11 @@
   },
   "devDependencies": {},
   "scripts": {
-    "upload": "node upload.js",
+    "upload": "node uploadAll.js",
     "download": "node downloadAll.js",
     "cli": "node cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "https://github.com/re5et/",
   "license": "ISC"
 }
