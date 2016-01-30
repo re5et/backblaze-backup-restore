@@ -11,6 +11,7 @@ const request = require('request');
 const logger = require('./logger');
 const encryptDecrypt = require('./encryptDecrypt');
 const fileShaSum = require('./fileShaSum');
+const progressBar = require('./progressBar');
 
 const chroot = process.env['BACKUP_RESTORE_DOWNLOAD_CHROOT'];
 
@@ -58,7 +59,7 @@ function restoreBackup(options, backup, target, callback){
   const decrypt = crypto.createDecipher(encryptDecrypt.algorithm, encryptDecrypt.password)
   const unzip = zlib.createGunzip();
   const w = fs.createWriteStream(target, {flags: 'w'});
-  var ticker = 0;
+  var bar;
   request({
     json: true,
     url: url,
@@ -70,13 +71,14 @@ function restoreBackup(options, backup, target, callback){
     }
   }).on('response', function(response){
     if(response.statusCode === 200){
-      process.stdout.write('info: Found restorable upload for: ' + target + ', downloading now ');
+      logger.info('Found restorable upload for: ' + target + ', downloading now ');
+      bar = progressBar('downloading', parseInt(response.headers['content-length'], 10))
     }
   }).on('error', function(err){
     throw new Error(err);
-  }).on('data', function(){
-    if(++ticker % 1000 === 0){
-      process.stdout.write('.');
+  }).on('data', function(chunk){
+    if(bar){
+      bar.tick(chunk.length);
     }
   }).on('end', function(){
     w.end();
