@@ -22,5 +22,7 @@ module.exports = {
   encrypt: encrypt,
   password: password,
   algorithm: algorithm,
-  encryptFile: crypto.createCipher(algorithm, password)
+  encryptFile: function(){
+    return crypto.createCipher(algorithm, password);
+  }
 }
