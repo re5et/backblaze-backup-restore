@@ -72,7 +72,6 @@ function start(options){
         args = [directive];
         directive = "download";
       }
-      console.log(directive, args);
       const command = commands[directive]
       if(command){
         command(args);
