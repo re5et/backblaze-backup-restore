@@ -1,5 +1,5 @@
 var green = '\u001b[32m▪\u001b[0m';
-var red = '\u001b[31m▪\u001b[0m';
+var red = '\u001b[2m▪\u001b[0m';
 
 const progress = require('progress');
 
