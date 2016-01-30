@@ -53,25 +53,31 @@ function start(options){
       }
     }
 
-    const commands = {
-      search: search,
-      download: download
-    };
-
     function help(){
       console.log('Commands: ', _.keys(commands).join(' '));
     }
 
+    const commands = {
+      search: search,
+      download: download,
+      help: help
+    };
+
     help();
     prompt(function(line){
       const split = line.trim().split(' ');
-      const directive = split[0];
-      const args = split.splice(1);
+      var directive = split[0];
+      var args = split.splice(1);
+      if(!isNaN(directive)){
+        args = [directive];
+        directive = "download";
+      }
+      console.log(directive, args);
       const command = commands[directive]
       if(command){
         command(args);
       } else {
-        help();
+        search(split);
       }
     })
   });
