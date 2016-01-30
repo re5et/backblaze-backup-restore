@@ -22,13 +22,15 @@ function start(options){
       return {
         name: filePath,
         backup: backup,
-        searchTerms: basename.split(' ')
+        basename: basename
       }
     });
 
     function search(terms){
       downloadableResults = _.filter(backedUpFiles, function(backup){
-        return _.intersection(backup.searchTerms, terms).length == terms.length;
+        return _.every(terms, (term) => {
+          return backup.basename.match(new RegExp(term));
+        });
       });
       showDownloadableResults();
     }
