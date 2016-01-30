@@ -64,9 +64,9 @@ function uploadFile(options, file){
         const body = fs.readFileSync(workingFile);
         logger.info('reading file: ', workingFile);
         const sha1 = crypto.createHash('sha1').update(body).digest("hex");
-        logger.info('generated sha1 for : ', workingFile, sha1);
+        logger.info('generated sha1 for: ', workingFile, sha1);
         const contentLength = fs.statSync(workingFile).size;
-        logger.info('content length for : ', workingFile, contentLength);
+        logger.info('content length for: ', workingFile, contentLength);
         const url = options.apiUrl + '/b2api/v1/b2_get_upload_url';
         logger.info('getting upload authorization for: ', file);
         const bar = progressBar('uploading', contentLength);
