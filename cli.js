@@ -14,8 +14,8 @@ const prompt = require('./prompt');
 var downloadableResults = [];
 
 function start(options){
-  getBackedUpFiles(options, function(err, response, body){
-    const backedUpFiles = body.files.map(function(backup){
+  getBackedUpFiles(options, function(err, files){
+    const backedUpFiles = files.map(function(backup){
       const filePath = encryptDecrypt.decrypt(backup.fileName);
       const ext = path.extname(filePath);
       const basename = path.basename(filePath, ext);

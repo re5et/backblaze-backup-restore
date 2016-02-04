@@ -116,11 +116,10 @@ function uploadFile(options, file){
 }
 
 function start(options){
-  getBackedUpFiles(options, function(err, response, data){
+  getBackedUpFiles(options, function(err, backedUpFiles){
     if(err){
       throw new Error(err);
     }
-    const backedUpFiles = data.files;
     const filesToBackup = getFilesToBackup();
     const tasks = [];
     filesToBackup.forEach(function(file){
