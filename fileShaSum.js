@@ -3,10 +3,10 @@ const crypto = require('crypto');
 
 const logger = require('./logger');
 
-module.exports = function(target, callback){
+module.exports = function(target, hashType, callback){
   logger.info('generating sha for: ', target);
   const stream = fs.ReadStream(target);
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash(hashType);
   stream.on('data', function(data) { hash.update(data); });
   stream.on('end', function() {
     const hashHex = hash.digest('hex');
