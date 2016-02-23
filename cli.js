@@ -8,6 +8,7 @@ const _ = require('lodash');
 const authenticate = require('./authenticate');
 const getBackedUpFiles = require('./getBackedUpFiles');
 const downloadFile = require('./downloadFile');
+const uploadFile = require('./uploadFile');
 const encryptDecrypt = require('./encryptDecrypt');
 const prompt = require('./prompt');
 
@@ -53,6 +54,12 @@ function start(options){
       }
     }
 
+    function upload(args){
+      uploadFile(options, args.join(' '))(function(){
+        console.log('upload complete');
+      });
+    }
+
     function help(){
       console.log('Commands: ', _.keys(commands).join(' '));
     }
@@ -60,6 +67,7 @@ function start(options){
     const commands = {
       search: search,
       download: download,
+      upload: upload,
       help: help
     };
 
