@@ -3,16 +3,24 @@ const crypto = require('crypto');
 const algorithm = 'aes-256-ctr';
 const password = process.env['BACKUP_RESTORE_PASSWORD'];
 
+function createCipher(){
+  return crypto.createCipher(algorithm, password);
+}
+
+function createDecipher(){
+  return crypto.createDecipher(algorithm, password)
+}
+
 function encrypt(text){
-  const cipher = crypto.createCipher(algorithm, password)
-  const crypted = cipher.update(text,'utf8','hex')
+  const cipher = createCipher();
+  const crypted = cipher.update(text,'utf8','hex');
   crypted += cipher.final('hex');
   return crypted;
 }
 
 function decrypt(text){
-  const decipher = crypto.createDecipher(algorithm, password)
-  const dec = decipher.update(text,'hex','utf8')
+  const decipher = createDecipher();
+  const dec = decipher.update(text,'hex','utf8');
   dec += decipher.final('utf8');
   return dec;
 }
@@ -22,7 +30,6 @@ module.exports = {
   encrypt: encrypt,
   password: password,
   algorithm: algorithm,
-  encryptFile: function(){
-    return crypto.createCipher(algorithm, password);
-  }
+  createCipher: createCipher,
+  createDecipher: createDecipher
 }

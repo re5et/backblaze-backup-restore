@@ -56,7 +56,6 @@ function restoreBackup(options, backup, target, callback){
   mkdirp.sync(destinationDirectory);
   const url = options.downloadUrl + '/b2api/v1/b2_download_file_by_id';
 
-  const decrypt = crypto.createDecipher(encryptDecrypt.algorithm, encryptDecrypt.password)
   const unzip = zlib.createGunzip();
   const w = fs.createWriteStream(target, {flags: 'w'});
   var bar;
@@ -83,7 +82,7 @@ function restoreBackup(options, backup, target, callback){
   }).on('end', function(){
     w.end();
     callback();
-  }).pipe(decrypt).pipe(unzip).pipe(w);
+  }).pipe(encryptDecrypt.createDecipher()).pipe(unzip).pipe(w);
 }
 
 function downloadFile(options, backup){

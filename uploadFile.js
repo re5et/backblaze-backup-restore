@@ -38,7 +38,7 @@ function uploadFile(options, file){
       const zip = zlib.createGzip();
       const writer = fs.createWriteStream(workingFile);
       logger.info('reading, zipping, encrypting and writing working file: ', file, workingFile);
-      reader.pipe(zip).pipe(encryptDecrypt.encryptFile()).pipe(writer).on('finish', function(){
+      reader.pipe(zip).pipe(encryptDecrypt.createCipher()).pipe(writer).on('finish', function(){
         zip.end();
         writer.end();
         logger.info('zipped and encrypted file written: ', workingFile)
