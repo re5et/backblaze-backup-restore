@@ -37,8 +37,8 @@ function start(options){
     }
 
     function showDownloadableResults(){
-      downloadableResults.forEach(function(match, i){
-        console.log('['+i+'] '+match.name);
+      _.orderBy(downloadableResults, 'basename').forEach(function(result, i){
+        console.log('['+i+'] '+result.name);
       });
     }
 
