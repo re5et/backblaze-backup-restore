@@ -31,7 +31,7 @@ module.exports = function getBackedUpFiles(options, callback){
           },
           qs: {
             bucketId: options.bucketId,
-            maxFileCount: 100,
+            maxFileCount: 1000,
             startFileName: nextFile
           }
         }, function(err, response, data){
