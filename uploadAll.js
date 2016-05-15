@@ -18,15 +18,18 @@ function storageKey(file){
 }
 
 function exclude(file){
-  if(file.match(/lost\+found/)){
-    return true;
+  const excludes = process.env['BACKUP_RESTORE_EXCLUDE_PATTERNS']
+  if(!excludes){
+    return false;
   }
-  return false;
+  return _.some(excludes.split(' '), function(exclude){
+    return file.match(exclude)
+  })
 }
 
 function getFilesToBackup(callback){
   const files = [];
-  const backupPaths = process.env['BACKUP_RESTORE_PATHS_TO_BACKUP'].split(' ');
+  const backupPaths = process.env['BACKUP_RESTORE_BACKUP_GLOBS'].split(' ');
   backupPaths.forEach(function(backupPath){
     glob.sync(backupPath).forEach(function(file){
       if(exclude(file)){

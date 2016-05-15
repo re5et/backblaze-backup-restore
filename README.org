@@ -23,5 +23,8 @@ BACKUP_RESTORE_BACKBLAZE_BUCKET="yourBucketName"
 # would download to /tmp/restore/foo/bar/baz.qux
 BACKUP_RESTORE_DOWNLOAD_CHROOT="/tmp/restore"
 # space separated globs
-BACKUP_RESTORE_PATHS_TO_BACKUP="/music/**/* /videos/*"
+BACKUP_RESTORE_BACKUP_GLOBS="/music/**/* /videos/*"
+# space seprated patterns, passed to String.match
+# matches against full pathname returned by glob
+BACKUP_RESTORE_EXCLUDE_PATTERNS="lost\+found \.git"
 ```
