@@ -18,7 +18,7 @@ module.exports = function getBucketId(options, callback){
     }
   }, function(err, response, body){
     if(err){ throw new Error(err) }
-    const bucket = _.find(body.buckets, 'bucketName', bucketName);
+    const bucket = _.find(body.buckets, ['bucketName', bucketName]);
     options.bucketId = bucket.bucketId;
     callback(err, options);
   });
