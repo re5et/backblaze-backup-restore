@@ -1,1 +1,27 @@
-This isn't ready to use.
+* This probably isn't ready to use!
+
+* Usage
+** `npm install`
+
+* what you can do:
+** `node ./uploadAll.js`
+** `node ./downloadAll.js`
+** `node ./cli.js`
+
+* example config
+```
+# either set this once and don't change it or keep good track of what
+# passphrase you are using for which uploads so you can download them
+# and unencrypt them
+BACKUP_RESTORE_PASSWORD="a passphrase used for encryption"
+BACKUP_RESTORE_BACKBLAZE_ID="yourBackBlazeId"
+BACKUP_RESTORE_BACKBLAZE_KEY="yourBackBlazeKey"
+BACKUP_RESTORE_BACKBLAZE_BUCKET="yourBucketName"
+# if you wish to download somewhere other than root
+# for example: uploaded /foo/bar/baz.qux
+# BACKUP_RESTORE_DOWNLOAD_CHROOT=/tmp/restore node ./downloadAll.js
+# would download to /tmp/restore/foo/bar/baz.qux
+BACKUP_RESTORE_DOWNLOAD_CHROOT="/tmp/restore"
+# space separated globs
+BACKUP_RESTORE_PATHS_TO_BACKUP="/music/**/* /videos/*"
+```
