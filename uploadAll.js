@@ -3,6 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
+const glob = require('glob');
 const _ = require('lodash');
 
 const logger = require('./logger');
@@ -17,22 +18,22 @@ function storageKey(file){
 }
 
 function exclude(file){
-  if(file == 'lost+found'){
+  if(file.match(/lost\+found/)){
     return true;
   }
   return false;
 }
 
-function getFilesToBackup(){
+function getFilesToBackup(callback){
   const files = [];
   const backupPaths = process.env['BACKUP_RESTORE_PATHS_TO_BACKUP'].split(' ');
   backupPaths.forEach(function(backupPath){
-    fs.readdirSync(backupPath).forEach(function(file){
+    glob.sync(backupPath).forEach(function(file){
       if(exclude(file)){
         return;
       }
-      files.push(path.join(backupPath, file));
-    });
+      files.push(file);
+    })
   });
   return files;
 }
