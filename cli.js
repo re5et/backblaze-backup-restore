@@ -18,7 +18,7 @@ var downloadableResults = [];
 
 function start(options){
   getBackedUpFiles(options, function(err, files){
-    const backedUpFiles = files.map(function(backup){
+    const backedUpFiles = _.orderBy(files.map(function(backup){
       const filePath = encryptDecrypt.decrypt(backup.fileName);
       const ext = path.extname(filePath);
       const basename = path.basename(filePath, ext);
@@ -27,7 +27,7 @@ function start(options){
         backup: backup,
         basename: basename
       }
-    });
+    }), 'basename');
 
     function search(terms){
       downloadableResults = _.filter(backedUpFiles, function(backup){
@@ -35,11 +35,12 @@ function start(options){
           return backup.basename.match(new RegExp(term));
         });
       });
+
       showDownloadableResults();
     }
 
     function showDownloadableResults(){
-      _.orderBy(downloadableResults, 'basename').forEach(function(result, i){
+      downloadableResults.forEach(function(result, i){
         console.log('['+i+'] '+result.name);
       });
     }
