@@ -26,7 +26,7 @@ function existsAndIsFile(path){
 function ensureActuallyRestored(options, backup, target, callback){
   logger.info('Ensuring backup restored properly: ', target);
   const url = options.apiUrl + '/b2api/v1/b2_get_file_info';
-  fileShaSum(target, function(err, localSha){
+  fileShaSum(target, 'sha256', function(err, localSha){
     request({
       json: true,
       url: url,

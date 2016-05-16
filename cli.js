@@ -11,6 +11,8 @@ const downloadFile = require('./downloadFile');
 const uploadFile = require('./uploadFile');
 const encryptDecrypt = require('./encryptDecrypt');
 const prompt = require('./prompt');
+const logger = require('./logger');
+const seriesRunner = require('./seriesRunner');
 
 var downloadableResults = [];
 
@@ -54,6 +56,19 @@ function start(options){
       }
     }
 
+    function downloadMatched(){
+      if(!downloadableResults[0]){
+        logger.warn('No matching result to download!')
+      } else {
+        const tasks = [];
+        downloadableResults.map(function(downloadable){
+          logger.info('queueing download: ', downloadable.name)
+          tasks.push(downloadFile(options, downloadable.backup))
+        })
+        seriesRunner(tasks)
+      }
+    }
+
     function upload(args){
       uploadFile(options, args.join(' '))(function(){
         console.log('upload complete');
@@ -67,6 +82,7 @@ function start(options){
     const commands = {
       search: search,
       download: download,
+      'download-matched': downloadMatched,
       upload: upload,
       help: help
     };
@@ -84,6 +100,7 @@ function start(options){
       if(command){
         command(args);
       } else {
+        logger.warn("Command not found, running search")
         search(split);
       }
     })
