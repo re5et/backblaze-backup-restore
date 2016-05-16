@@ -93,8 +93,13 @@ function start(options){
       var directive = split[0];
       var args = split.splice(1);
       if(!isNaN(directive)){
-        args = [directive];
-        directive = "download";
+        const downloadNumber = directive
+        const downloadable = downloadableResults[downloadNumber]
+        if(downloadable) {
+          logger.warn("defaulting to downloading matched result", downloadable.name)
+          args = [directive];
+          directive = "download";
+        }
       }
       const command = commands[directive]
       if(command){
