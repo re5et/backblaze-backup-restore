@@ -1,15 +1,15 @@
 * This probably isn't ready to use!
 
 * Usage
-** `npm install`
+~npm install~
 
 * what you can do:
-** `node ./uploadAll.js`
-** `node ./downloadAll.js`
-** `node ./cli.js`
+~node ./uploadAll.js~
+~node ./downloadAll.js~
+~node ./cli.js~
 
 * example config
-```
+#+begin_code sh
 # either set this once and don't change it or keep good track of what
 # passphrase you are using for which uploads so you can download them
 # and unencrypt them
@@ -22,9 +22,9 @@ BACKUP_RESTORE_BACKBLAZE_BUCKET="yourBucketName"
 # BACKUP_RESTORE_DOWNLOAD_CHROOT=/tmp/restore node ./downloadAll.js
 # would download to /tmp/restore/foo/bar/baz.qux
 BACKUP_RESTORE_DOWNLOAD_CHROOT="/tmp/restore"
-# space separated globs
-BACKUP_RESTORE_BACKUP_GLOBS="/music/**/* /videos/*"
+# space separated globs, always use recursive **/* postfix
+BACKUP_RESTORE_BACKUP_GLOBS="/music/**/* /videos/**/*"
 # space seprated patterns, passed to String.match
 # matches against full pathname returned by glob
 BACKUP_RESTORE_EXCLUDE_PATTERNS="lost\+found \.git"
-```
+#+end_code
