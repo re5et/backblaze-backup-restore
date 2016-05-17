@@ -18,6 +18,11 @@ const files = [];
 const oneGigabyte = 1073741824;
 const bigFileSize = process.env.BIG_FILE_SIZE || oneGigabyte;
 
+assert(
+  bigFileSize <= (oneGigabyte * 5),
+  'BIG_FILE_SIZE must be <= 5GB'
+);
+
 function storageKey(file){
   return encryptDecrypt.encrypt(file);
 }
