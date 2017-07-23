@@ -12,10 +12,7 @@ const getBackedUpFiles = require('./getBackedUpFiles');
 const uploadFile = require('./uploadFile');
 const encryptDecrypt = require('./encryptDecrypt');
 const seriesRunner = require('./seriesRunner');
-
-function storageKey(file){
-  return encryptDecrypt.encrypt(file);
-}
+const fileShaSum = require('./fileShaSum');
 
 function exclude(file){
   const excludes = process.env['BACKUP_RESTORE_EXCLUDE_PATTERNS']
@@ -47,16 +44,20 @@ function start(options){
       throw new Error(err);
     }
     const filesToBackup = getFilesToBackup();
-    const tasks = [];
-    filesToBackup.forEach(function(file){
-      const foundFile = _.find(backedUpFiles, function(backup){
-        return backup.fileName == storageKey(file);
-      });
-      if(!foundFile){
-        logger.info('did not find existing backup for: ', file, 'adding task.');
-        tasks.push(uploadFile(options, file));
-      } else {
-        logger.info('found backup!', file);
+    const tasks = filesToBackup.map(function(file){
+      return function(callback) {
+        fileShaSum(file, 'sha256', function(err, originalSha256){
+          const foundFile = _.find(backedUpFiles, function(backup){
+            return backup.fileName === originalSha256;
+          });
+          if(!foundFile){
+            logger.info('did not find existing backup for: ', file, 'adding task.');
+            uploadFile(options, file)(callback);
+          } else {
+            logger.info('found backup!', file);
+            callback();
+          }
+        })
       }
     });
     seriesRunner(tasks);

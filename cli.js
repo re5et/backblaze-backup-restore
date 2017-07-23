@@ -19,7 +19,7 @@ var downloadableResults = [];
 function start(options){
   getBackedUpFiles(options, function(err, files){
     const backedUpFiles = _.orderBy(files.map(function(backup){
-      const filePath = encryptDecrypt.decrypt(backup.fileName);
+      const filePath = encryptDecrypt.decrypt(backup.fileInfo['original-path']);
       const ext = path.extname(filePath);
       const basename = path.basename(filePath, ext);
       return {

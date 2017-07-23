@@ -1,3 +1,4 @@
+require('dotenv').config();
 const crypto = require('crypto');
 
 const algorithm = 'aes-256-ctr';
@@ -13,14 +14,14 @@ function createDecipher(){
 
 function encrypt(text){
   const cipher = createCipher();
-  const crypted = cipher.update(text,'utf8','hex');
+  let crypted = cipher.update(text,'utf8','hex');
   crypted += cipher.final('hex');
   return crypted;
 }
 
 function decrypt(text){
   const decipher = createDecipher();
-  const dec = decipher.update(text,'hex','utf8');
+  let dec = decipher.update(text,'hex','utf8');
   dec += decipher.final('utf8');
   return dec;
 }

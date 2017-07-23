@@ -1,9 +1,7 @@
 require('dotenv').config();
 
 const fs = require('fs');
-const path = require('path');
 const zlib = require('zlib');
-const crypto = require('crypto');
 
 const request = require('request');
 
@@ -12,19 +10,6 @@ const getBucketId = require('./getBucketId');
 const encryptDecrypt = require('./encryptDecrypt');
 const fileShaSum = require('./fileShaSum');
 const progressBar = require('./progressBar');
-
-const files = [];
-
-function storageKey(file){
-  return encryptDecrypt.encrypt(file);
-}
-
-function exclude(file){
-  if(file == 'lost+found'){
-    return true;
-  }
-  return false;
-}
 
 function uploadFile(options, file){
   return function(callback){
@@ -39,11 +24,8 @@ function uploadFile(options, file){
       const writer = fs.createWriteStream(workingFile);
       logger.info('reading, zipping, encrypting and writing working file: ', file, workingFile);
       reader.pipe(zip).pipe(encryptDecrypt.createCipher()).pipe(writer).on('finish', function(){
-        zip.end();
-        writer.end();
         logger.info('zipped and encrypted file written: ', workingFile)
         fileShaSum(workingFile, 'sha1', function(err, sha1){
-          logger.info('generated sha1 for: ', workingFile, sha1);
           const contentLength = fs.statSync(workingFile).size;
           logger.info('content length for: ', workingFile, contentLength);
           const url = options.apiUrl + '/b2api/v1/b2_get_upload_url';
@@ -64,18 +46,18 @@ function uploadFile(options, file){
               logger.info('received upload authorization for: ', file);
               const uploadToken = data.authorizationToken;
               const uploadUrl = data.uploadUrl;
-              logger.info('uploading file: ', file);
+              logger.info(`uploading file: ${file} storageKey: ${originalSha256}`);
               const w = fs.createReadStream(workingFile)
               w.on('data', function(chunk){
                 bar.tick(chunk.length);
               }).pipe(request.post(uploadUrl, {
                 headers: {
                   'Authorization': uploadToken,
-                  'X-Bz-File-Name': storageKey(file),
+                  'X-Bz-File-Name': originalSha256,
                   'X-Bz-Content-Sha1': sha1,
                   'Content-Length': contentLength,
                   'Content-Type': 'application/octet-stream',
-                  'X-Bz-Info-Original-Sha256': originalSha256
+                  'X-Bz-Info-Original-Path': originalPathEncrypted,
                 }
               }).on('error', function(err){
                 logger.error('error uploading file: ', file);

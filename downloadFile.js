@@ -37,7 +37,7 @@ function ensureActuallyRestored(options, backup, target, callback){
         fileId: backup.fileId
       }
     }, function(err, response, body){
-      const storedSha = body.fileInfo['original-sha256'];
+      const storedSha = body.fileName
       if(storedSha != localSha){
         logger.info('shas do not match!: ', target, storedSha, localSha);
         restoreBackup(options, backup, target, callback);
@@ -80,13 +80,13 @@ function restoreBackup(options, backup, target, callback){
       bar.tick(chunk.length);
     }
   }).on('end', function(){
-    w.end();
     callback();
   }).pipe(encryptDecrypt.createDecipher()).pipe(unzip).pipe(w);
 }
 
 function downloadFile(options, backup){
-  const filePath = encryptDecrypt.decrypt(backup.fileName);
+  const encryptedOriginalPath = backup.fileInfo['original-path']
+  const filePath = encryptDecrypt.decrypt(encryptedOriginalPath);
   const target = chroot ? path.join(chroot, filePath) : filePath;
   return function(callback){
     if(existsAndIsFile(target)){
