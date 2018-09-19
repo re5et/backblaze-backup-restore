@@ -13,7 +13,7 @@ const progressBar = require('./progressBar');
 
 function uploadFile(options, file){
   return function(callback){
-    logger.info('***** beginning work on: ', file);
+    logger.info('***** beginning upload of: ', file);
     fileShaSum(file, 'sha256', function(err, originalSha256){
       logger.info('generating encrypted name for: ', file);
       const originalPathEncrypted = encryptDecrypt.encrypt(file);

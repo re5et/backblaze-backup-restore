@@ -46,6 +46,7 @@ function start(options){
     const filesToBackup = getFilesToBackup();
     const tasks = filesToBackup.map(function(file){
       return function(callback) {
+				logger.info('***** beginning work on: ', file);
         fileShaSum(file, 'sha256', function(err, originalSha256){
           const foundFile = _.find(backedUpFiles, function(backup){
             return backup.fileName === originalSha256;
