@@ -20,7 +20,7 @@ function uploadFile(options, file){
 		setInterval(function(){
 			chunkSecondIndex++
 		}, 1000)
-    logger.info('***** beginning upload of: ', file);
+    logger.info('beginning upload of: ', file);
     fileShaSum(file, 'sha256', function(err, originalSha256){
       logger.info('generating encrypted name for: ', file);
       const originalPathEncrypted = encryptDecrypt.encrypt(file);
