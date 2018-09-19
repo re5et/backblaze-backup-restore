@@ -4,7 +4,7 @@ var red = '\u001b[2m▪\u001b[0m';
 const progress = require('progress');
 
 module.exports = function(label, total) {
-  var format = '  '+label+' :bar :percent elapsed: :elapseds remaining: :etas';
+  var format = '  '+label+' :bar :percent elapsed: :elapseds remaining: :etas :kbps kB/s';
   var options = {
     complete: green,
     incomplete: red,

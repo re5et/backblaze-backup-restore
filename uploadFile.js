@@ -10,9 +10,16 @@ const getBucketId = require('./getBucketId');
 const encryptDecrypt = require('./encryptDecrypt');
 const fileShaSum = require('./fileShaSum');
 const progressBar = require('./progressBar');
+const lodash = require('lodash');
 
 function uploadFile(options, file){
   return function(callback){
+		const chunkLengthsByTheSecond = []
+		const chunkSampleSize = 5
+		let chunkSecondIndex = 0
+		setInterval(function(){
+			chunkSecondIndex++
+		}, 1000)
     logger.info('***** beginning upload of: ', file);
     fileShaSum(file, 'sha256', function(err, originalSha256){
       logger.info('generating encrypted name for: ', file);
@@ -49,7 +56,15 @@ function uploadFile(options, file){
               logger.info(`uploading file: ${file} storageKey: ${originalSha256}`);
               const w = fs.createReadStream(workingFile)
               w.on('data', function(chunk){
-                bar.tick(chunk.length);
+								if(!chunkLengthsByTheSecond[chunkSecondIndex]) {
+									chunkLengthsByTheSecond[chunkSecondIndex] = []
+								}
+								chunkLengthsByTheSecond[chunkSecondIndex].push(chunk.length)
+								const sample = chunkLengthsByTheSecond.slice(chunkLengthsByTheSecond.length - (chunkSampleSize+1), chunkLengthsByTheSecond.length - 1)
+								const average = lodash.sum(lodash.flatten(sample)) / chunkSampleSize
+                bar.tick(chunk.length, {
+									'kbps': Math.floor(average / 1000)
+								});
               }).pipe(request.post(uploadUrl, {
                 headers: {
                   'Authorization': uploadToken,
