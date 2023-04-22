@@ -2,7 +2,15 @@ const request = require('request');
 
 const logger = require('./logger');
 
+let authInfo
+let authInfoAt
+
 module.exports = function(callback){
+  const now = (new Date()).getTime()
+  if (authInfo && (now - authInfoAt) < 1000 * 60 * 60) {
+    logger.info('using auth from cache')
+    return callback(authInfo)
+  }
   logger.info('authorizing');
   request({
     json: true,
@@ -20,6 +28,8 @@ module.exports = function(callback){
     if(!body.accountId){
       throw new Error(body.message);
     }
-    callback(body);
+    authInfo = body
+    authInfoAt = now
+    return callback(body);
   });
 }

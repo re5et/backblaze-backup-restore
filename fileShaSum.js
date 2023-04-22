@@ -3,10 +3,12 @@ const crypto = require('crypto');
 
 const logger = require('./logger');
 
-const db = require('./database')
+const db = require('./database');
+
+const removeFileShaFromCache = require('./removeFileShaFromCache');
 
 const checkFileShaCache = function(target, type, callback){
-  if (process.env.BACKUP_RESTORE_CACHE_FILE_SUMS !== "1") {
+  if (process.env.BACKUP_RESTORE_READ_CACHE_FILE_SUMS !== "1") {
     return callback(null, null)
   }
   const sql = 'SELECT * from file_shas where name = ? and type = ? LIMIT 1'
@@ -16,7 +18,7 @@ const checkFileShaCache = function(target, type, callback){
 }
 
 const addFileShaToCache = function(target, sha, type, callback){
-  if (process.env.BACKUP_RESTORE_CACHE_FILE_SUMS !== "1") {
+  if (process.env.BACKUP_RESTORE_WRITE_CACHE_FILE_SUMS !== "1") {
     return callback(null)
   }
 
@@ -41,7 +43,7 @@ module.exports = function(target, hashType, callback){
         logger.info(`completed sha (${hashType}) for: ${target} ${sha}`);
         addFileShaToCache(target, sha, hashType, function(err) {
           if (err) {
-            throw err
+            return callback(err)
           }
           callback(null, sha);
         })

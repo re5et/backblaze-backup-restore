@@ -84,17 +84,17 @@ function restoreBackup(options, backup, target, callback){
   }).pipe(encryptDecrypt.createDecipher()).pipe(unzip).pipe(w);
 }
 
-function downloadFile(options, backup){
+function downloadFile(backup){
   const encryptedOriginalPath = backup.fileInfo['original-path']
   const filePath = encryptDecrypt.decrypt(encryptedOriginalPath);
   const target = chroot ? path.join(chroot, filePath) : filePath;
-  return function(callback){
+  return function(auth, callback){
     if(existsAndIsFile(target)){
       logger.info('Local path for backup exists:', target);
-      ensureActuallyRestored(options, backup, target, callback);
+      ensureActuallyRestored(auth, backup, target, callback);
     } else {
       logger.info('Local path for backup does not exist:', target);
-      restoreBackup(options, backup, target, callback);
+      restoreBackup(auth, backup, target, callback);
     }
   }
 }
